@@ -42,3 +42,23 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Local configuration
+*.local
+src/environments/environment.local.ts
+
+# AWS credentials
+.aws/
+aws-credentials
+credentials
+
+# Private keys and certificates
+*.pem
+*.key
+*.p12
+*.pfx
