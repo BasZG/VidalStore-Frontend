@@ -1,21 +1,5 @@
-<h1>VidalStore</h1>
+<app-navbar />
 
-@if (usuario()) {
-  <p>Sesión iniciada: {{ usuario() }}</p>
-
-  <button type="button" (click)="cerrarSesion()">
-    Cerrar sesión
-  </button>
-} @else {
-  <p>No hay una sesión iniciada.</p>
-
-  <button type="button" (click)="iniciarSesion()">
-    Iniciar sesión
-  </button>
-
-  <a routerLink="/registro">
-    Crear cuenta
-  </a>
-}
-
-<router-outlet />
+<main>
+  <router-outlet />
+</main>
