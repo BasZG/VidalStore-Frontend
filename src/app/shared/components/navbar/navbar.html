@@ -1,0 +1,102 @@
+<header
+  class="sticky top-0 z-50 border-b border-[var(--vs-border)] bg-[var(--vs-bg-secondary)]"
+>
+  <nav
+    class="mx-auto flex min-h-16 max-w-[var(--vs-max-width)] flex-wrap items-center justify-between gap-4 px-6"
+  >
+    <!-- Marca -->
+    <a
+      routerLink="/"
+      class="text-xl font-bold tracking-wide text-[var(--vs-text)] transition hover:text-[var(--vs-primary)]"
+    >
+      VidalStore
+    </a>
+
+    <!-- Navegación -->
+    <div class="flex flex-wrap items-center gap-1">
+      <a
+        routerLink="/catalogo"
+        routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+        class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+      >
+        Catálogo
+      </a>
+
+      <a
+        routerLink="/biblioteca"
+        routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+        class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+      >
+        Biblioteca
+      </a>
+
+      <a
+        routerLink="/editor"
+        routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+        class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+      >
+        Editor
+      </a>
+
+      <a
+        routerLink="/administracion"
+        routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+        class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+      >
+        Administración
+      </a>
+
+      <!-- Sin sesión -->
+      @if (!usuario()) {
+        <button
+          type="button"
+          (click)="iniciarSesion()"
+          class="ml-2 rounded bg-[var(--vs-primary)] px-4 py-2 text-sm font-semibold text-[#0b1622] hover:bg-[var(--vs-primary-hover)]"
+        >
+          Iniciar sesión
+        </button>
+      }
+
+      <!-- Con sesión -->
+      @if (usuario()) {
+        <div class="relative ml-2">
+          <button
+            type="button"
+            (click)="alternarMenu()"
+            class="rounded border border-[var(--vs-border)] bg-[var(--vs-surface)] px-4 py-2 text-sm font-medium text-[var(--vs-text)] hover:bg-[var(--vs-surface-hover)]"
+          >
+            {{ nombre() || email() || usuario() }}
+          </button>
+
+          @if (menuAbierto()) {
+            <div
+              class="absolute right-0 mt-2 w-72 rounded border border-[var(--vs-border)] bg-[var(--vs-surface)] p-4 shadow-xl"
+            >
+              <p class="mb-1 text-xs uppercase tracking-wide text-[var(--vs-text-secondary)]">
+                Cuenta
+              </p>
+
+              <div class="mb-4 border-b border-[var(--vs-border)] pb-4">
+                <p class="text-sm font-semibold text-[var(--vs-text)]">
+                  {{ nombre() || 'Nombre no registrado' }}
+                </p>
+
+                <p class="mt-1 break-all text-sm text-[var(--vs-text-secondary)]">
+                  {{ email() || usuario() }}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                (click)="cerrarSesion()"
+                class="w-full rounded border border-[var(--vs-danger)] px-4 py-2 text-sm font-medium text-[var(--vs-danger)] hover:bg-[var(--vs-danger)] hover:text-white"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+:root {
+  /* Fondos */
+  --vs-bg: #0b1622;
+  --vs-bg-secondary: #101f2e;
+
+  /* Superficies */
+  --vs-surface: #162536;
+  --vs-surface-hover: #1f3448;
+
+  /* Bordes */
+  --vs-border: #2b465e;
+
+  /* Texto */
+  --vs-text: #f2f6fa;
+  --vs-text-secondary: #9bb0c3;
+
+  /* Acción principal */
+  --vs-primary: #66c0f4;
+  --vs-primary-hover: #4aa3d8;
+
+  /* Comprar / acción positiva */
+  --vs-accent: #75b022;
+  --vs-accent-hover: #8bc53f;
+
+  /* Estados */
+  --vs-danger: #d9534f;
+  --vs-warning: #f0ad4e;
+
+  /* Layout */
+  --vs-max-width: 1280px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--vs-bg);
+  color: var(--vs-text);
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+a {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* =========================
+   Tipografía
+   ========================= */
+
+.vs-page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--vs-text);
+  margin-bottom: 0.5rem;
+}
+
+.vs-section-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--vs-text);
+  margin-bottom: 1rem;
+}
+
+.vs-text {
+  color: var(--vs-text);
+  line-height: 1.6;
+}
+
+.vs-text-muted {
+  color: var(--vs-text-secondary);
+  line-height: 1.6;
+}
+
+/* =========================
+   Botones
+   ========================= */
+
+.vs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 4px;
+  padding: 0.65rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vs-btn-primary {
+  background: var(--vs-primary);
+  color: var(--vs-bg);
+}
+
+.vs-btn-primary:hover {
+  background: var(--vs-primary-hover);
+}
+
+.vs-btn-buy {
+  background: var(--vs-accent);
+  color: white;
+}
+
+.vs-btn-buy:hover {
+  background: var(--vs-accent-hover);
+}
+
+.vs-btn-danger {
+  background: transparent;
+  border: 1px solid var(--vs-danger);
+  color: var(--vs-danger);
+}
+
+.vs-btn-danger:hover {
+  background: var(--vs-danger);
+  color: white;
+}
+
+/* =========================
+   Formularios
+   ========================= */
+
+.vs-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.vs-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--vs-text-secondary);
+}
+
+.vs-input {
+  width: 100%;
+  border: 1px solid var(--vs-border);
+  border-radius: 4px;
+  background: var(--vs-bg-secondary);
+  color: var(--vs-text);
+  padding: 0.75rem 0.9rem;
+  outline: none;
+}
+
+.vs-input:focus {
+  border-color: var(--vs-primary);
+}
+
+/* =========================
+   Superficies
+   ========================= */
+
+.vs-card {
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-border);
+  border-radius: 6px;
+  padding: 1.25rem;
+}
+
+.vs-card:hover {
+  background: var(--vs-surface-hover);
+}
+
+.vs-container {
+  width: min(100% - 2rem, var(--vs-max-width));
+  margin-inline: auto;
+}
