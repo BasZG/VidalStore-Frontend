@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   confirmSignUp,
   fetchAuthSession,
+  fetchUserAttributes,
   getCurrentUser,
   signInWithRedirect,
   signOut,
@@ -43,6 +44,14 @@ export class AuthService {
   async obtenerUsuarioActual() {
     try {
       return await getCurrentUser();
+    } catch {
+      return null;
+    }
+  }
+
+  async obtenerAtributosUsuario() {
+    try {
+      return await fetchUserAttributes();
     } catch {
       return null;
     }

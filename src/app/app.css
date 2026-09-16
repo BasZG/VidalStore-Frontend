@@ -1,0 +1,13 @@
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+button {
+  margin-right: 1rem;
+}
