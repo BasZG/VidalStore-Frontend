@@ -8,6 +8,8 @@ import { Administracion } from './pages/administracion/administracion';
 import { Registro } from './pages/registro/registro';
 import { Callback } from './pages/callback/callback';
 import { authGuard } from './core/auth/auth.guard';
+import { groupGuard } from './core/auth/group.guard';
+import { GrupoUsuario } from './core/auth/auth';
 
 export const routes: Routes = [
   {
@@ -24,15 +26,26 @@ export const routes: Routes = [
     component: Biblioteca,
     canActivate: [authGuard],
   },
-  {
+    {
     path: 'editor',
     component: Editor,
-    canActivate: [authGuard],
+    canActivate: [authGuard, groupGuard],
+    data: {
+      grupos: [
+        'editores',
+        'administradores',
+      ] satisfies GrupoUsuario[],
+    },
   },
   {
     path: 'administracion',
     component: Administracion,
-    canActivate: [authGuard],
+    canActivate: [authGuard, groupGuard],
+    data: {
+      grupos: [
+        'administradores',
+      ] satisfies GrupoUsuario[],
+    },
   },
   {
     path: 'registro',
