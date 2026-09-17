@@ -3,10 +3,23 @@ import { inject } from '@angular/core';
 import { from, switchMap } from 'rxjs';
 import { AuthService } from './auth';
 
-const GATEWAY_URL = 'http://localhost:8080';
+const GATEWAY_ORIGIN = 'http://localhost:8080';
+
+function esDestinoPermitido(url: string): boolean {
+  try {
+    const destino = new URL(url, window.location.origin);
+
+    return (
+      destino.origin === GATEWAY_ORIGIN &&
+      destino.pathname.startsWith('/v1/')
+    );
+  } catch {
+    return false;
+  }
+}
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!req.url.startsWith(GATEWAY_URL)) {
+  if (!esDestinoPermitido(req.url)) {
     return next(req);
   }
 
@@ -17,9 +30,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       if (!token) {
         return next(req);
       }
+
       const reqConToken = req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` },
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       return next(reqConToken);
     }),
   );
