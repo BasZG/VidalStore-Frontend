@@ -7,6 +7,7 @@ import { Editor } from './pages/editor/editor';
 import { Administracion } from './pages/administracion/administracion';
 import { Registro } from './pages/registro/registro';
 import { Callback } from './pages/callback/callback';
+import { authGuard } from './core/auth/auth.guard';
 
 export const routes: Routes = [
   {
@@ -16,18 +17,22 @@ export const routes: Routes = [
   {
     path: 'catalogo',
     component: Catalogo,
+    canActivate: [authGuard],
   },
   {
     path: 'biblioteca',
     component: Biblioteca,
+    canActivate: [authGuard],
   },
   {
     path: 'editor',
     component: Editor,
+    canActivate: [authGuard],
   },
   {
     path: 'administracion',
     component: Administracion,
+    canActivate: [authGuard],
   },
   {
     path: 'registro',
