@@ -1,14 +1,19 @@
 <h1>Catálogo</h1>
-<div *ngIf="cargando">Cargando catálogo...</div>
 
-<div *ngIf="error">{{ error }}</div>
+<div *ngIf="cargando()">
+  Cargando catálogo...
+</div>
 
-<div *ngIf="!cargando && !error && juegos.length === 0">
+<div *ngIf="error()">
+  {{ error() }}
+</div>
+
+<div *ngIf="!cargando() && !error() && juegos().length === 0">
   No hay juegos en el catálogo todavía.
 </div>
 
-<div *ngIf="!cargando && !error && juegos.length > 0">
-  <div *ngFor="let juego of juegos">
+<div *ngIf="!cargando() && !error() && juegos().length > 0">
+  <div *ngFor="let juego of juegos()">
     <h3>{{ juego.titulo }}</h3>
     <p>{{ juego.descripcion }}</p>
     <p>${{ juego.precio }}</p>
