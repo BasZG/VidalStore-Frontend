@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Juego {
-  juegoId: string;
+  id: string;
   titulo: string;
   descripcion: string;
   imagen: string;
