@@ -1,0 +1,47 @@
+:host {
+  display: block;
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid #d7d7d7;
+  border-radius: 0.5rem;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+textarea {
+  padding: 0.6rem;
+}
+
+textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.acciones {
+  display: flex;
+  gap: 0.75rem;
+}
+
+article {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #d7d7d7;
+  border-radius: 0.5rem;
+}
