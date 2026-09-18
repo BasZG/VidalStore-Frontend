@@ -1,61 +1,116 @@
-<nav class="navbar">
-  <a class="marca" routerLink="/">
-    VidalStore
-  </a>
-
-  <div class="navegacion">
-    <a routerLink="/catalogo" routerLinkActive="activo">
-      Catálogo
+<header
+  class="sticky top-0 z-50 border-b border-[var(--vs-border)] bg-[var(--vs-bg-secondary)]"
+>
+  <nav
+    class="mx-auto flex min-h-16 max-w-[var(--vs-max-width)] flex-wrap items-center justify-between gap-4 px-6"
+  >
+    <a
+      routerLink="/"
+      class="text-xl font-bold tracking-wide text-[var(--vs-text)] transition hover:text-[var(--vs-primary)]"
+    >
+      VidalStore
     </a>
 
-    <a routerLink="/biblioteca" routerLinkActive="activo">
-      Biblioteca
-    </a>
+    <div class="flex flex-wrap items-center gap-1">
+      @if (usuario()) {
+        <a
+          routerLink="/catalogo"
+          routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+          class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+        >
+          Catálogo
+        </a>
 
-    <a routerLink="/editor" routerLinkActive="activo">
-      Editor
-    </a>
+        <a
+          routerLink="/biblioteca"
+          routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+          class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+        >
+          Biblioteca
+        </a>
 
-    <a routerLink="/administracion" routerLinkActive="activo">
-      Administración
-    </a>
+        @if (esEditor()) {
+          <a
+            routerLink="/editor"
+            routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+            class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+          >
+            Editor
+          </a>
+        }
 
-    @if (usuario()) {
-      <div class="usuario">
+        @if (esAdministrador()) {
+          <a
+            routerLink="/administracion"
+            routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+            class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+          >
+            Administración
+          </a>
+        }
+
+        <div class="relative ml-2">
+          <button
+            type="button"
+            (click)="alternarMenu()"
+            class="rounded border border-[var(--vs-border)] bg-[var(--vs-surface)] px-4 py-2 text-sm font-medium text-[var(--vs-text)] hover:bg-[var(--vs-surface-hover)]"
+          >
+            {{ nombre() || email() || usuario() }}
+          </button>
+
+          @if (menuAbierto()) {
+            <div
+              class="absolute right-0 mt-2 w-72 rounded border border-[var(--vs-border)] bg-[var(--vs-surface)] p-4 shadow-xl"
+            >
+              <p
+                class="mb-1 text-xs uppercase tracking-wide text-[var(--vs-text-secondary)]"
+              >
+                Cuenta
+              </p>
+
+              <div
+                class="mb-4 border-b border-[var(--vs-border)] pb-4"
+              >
+                <p
+                  class="text-sm font-semibold text-[var(--vs-text)]"
+                >
+                  {{ nombre() || 'Nombre no registrado' }}
+                </p>
+
+                <p
+                  class="mt-1 break-all text-sm text-[var(--vs-text-secondary)]"
+                >
+                  {{ email() || usuario() }}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                (click)="cerrarSesion()"
+                class="w-full rounded border border-[var(--vs-danger)] px-4 py-2 text-sm font-medium text-[var(--vs-danger)] hover:bg-[var(--vs-danger)] hover:text-white"
+              >
+                Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a
+          routerLink="/registro"
+          routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
+          class="rounded px-4 py-2 text-sm font-medium text-[var(--vs-text-secondary)] hover:bg-[var(--vs-surface)] hover:text-[var(--vs-text)]"
+        >
+          Crear cuenta
+        </a>
+
         <button
           type="button"
-          class="usuario-boton"
-          (click)="alternarMenu()"
+          (click)="iniciarSesion()"
+          class="ml-2 rounded bg-[var(--vs-primary)] px-4 py-2 text-sm font-semibold text-[#0b1622] hover:bg-[var(--vs-primary-hover)]"
         >
-          {{ nombre() || email() || usuario() }}
+          Iniciar sesión
         </button>
-
-        @if (menuAbierto()) {
-          <div class="usuario-menu">
-            <p>
-              <strong>Nombre:</strong>
-              {{ nombre() || 'No registrado' }}
-            </p>
-
-            <p>
-              <strong>Correo:</strong>
-              {{ email() || usuario() }}
-            </p>
-
-            <button type="button" (click)="cerrarSesion()">
-              Cerrar sesión
-            </button>
-          </div>
-        }
-      </div>
-    } @else {
-      <button
-        type="button"
-        class="login"
-        (click)="iniciarSesion()"
-      >
-        Iniciar sesión
-      </button>
-    }
-  </div>
-</nav>
+      }
+    </div>
+  </nav>
+</header>

@@ -1,2 +1,86 @@
 <h1>Gestión de catálogo</h1>
-<p>Área para editores y administradores.</p>
+
+<form [formGroup]="formulario" (ngSubmit)="guardar()">
+  <h2>
+    {{ juegoEditando() ? 'Editar juego' : 'Crear juego' }}
+  </h2>
+
+  <label>
+    Título
+    <input type="text" formControlName="titulo" />
+  </label>
+
+  <label>
+    Descripción
+    <textarea formControlName="descripcion"></textarea>
+  </label>
+
+  <label>
+    URL de la imagen
+    <input type="text" formControlName="imagen" />
+  </label>
+
+  <label>
+    Precio
+    <input type="number" min="0" formControlName="precio" />
+  </label>
+
+  <label>
+    Género (opcional)
+    <input type="text" formControlName="genero" />
+  </label>
+
+  <label>
+    Fecha de publicación (opcional)
+    <input type="date" formControlName="fechaPublicacion" />
+  </label>
+
+  <p *ngIf="formulario.invalid && formulario.touched">
+    Completa los campos obligatorios y usa un precio mayor o igual a cero.
+  </p>
+
+  <div class="acciones">
+    <button type="submit" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : juegoEditando() ? 'Guardar cambios' : 'Crear juego' }}
+    </button>
+
+    <button
+      *ngIf="juegoEditando()"
+      type="button"
+      [disabled]="guardando()"
+      (click)="cancelarEdicion()"
+    >
+      Cancelar
+    </button>
+  </div>
+</form>
+
+<p *ngIf="mensaje()" role="status">
+  {{ mensaje() }}
+</p>
+
+<div *ngIf="error()" role="alert">
+  <p>{{ error() }}</p>
+
+  <button *ngIf="!guardando()" type="button" (click)="cargarJuegos()">Reintentar carga</button>
+</div>
+
+<p *ngIf="cargando()">Cargando catálogo...</p>
+
+<p *ngIf="!cargando() && !error() && juegos().length === 0">
+  No hay juegos en el catálogo todavía.
+</p>
+
+<section *ngIf="!cargando() && !error() && juegos().length > 0">
+  <h2>Juegos publicados</h2>
+
+  <article *ngFor="let juego of juegos()">
+    <h3>{{ juego.titulo }}</h3>
+    <p>{{ juego.descripcion }}</p>
+    <p>Precio: ${{ juego.precio }}</p>
+    <p *ngIf="juego.genero">Género: {{ juego.genero }}</p>
+    <p *ngIf="juego.fechaPublicacion">Publicación: {{ juego.fechaPublicacion }}</p>
+
+    <button type="button" [disabled]="guardando()" (click)="editar(juego)">Editar</button>
+  </article>
+</section>
