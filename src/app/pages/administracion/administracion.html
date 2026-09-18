@@ -1,2 +1,60 @@
 <h1>Administración de licencias</h1>
-<p>Área exclusiva para administradores.</p>
+
+<p *ngIf="mensaje()" role="status">
+  {{ mensaje() }}
+</p>
+
+<div *ngIf="error()" role="alert">
+  <p>{{ error() }}</p>
+
+  <button
+    type="button"
+    [disabled]="licenciaRevocando() !== null"
+    (click)="cargarLicencias()"
+  >
+    Reintentar carga
+  </button>
+</div>
+
+<p *ngIf="cargando()">
+  Cargando licencias...
+</p>
+
+<p
+  *ngIf="
+    !cargando() &&
+    !error() &&
+    licencias().length === 0
+  "
+>
+  No hay licencias activas.
+</p>
+
+<section
+  *ngIf="
+    !cargando() &&
+    licencias().length > 0
+  "
+>
+  <article *ngFor="let licencia of licencias()">
+    <h2>Licencia {{ licencia.id }}</h2>
+    <p>Juego: {{ licencia.juegoId }}</p>
+    <p>Propietario: {{ licencia.usuarioSub }}</p>
+    <p>
+      Creada:
+      {{ licencia.fechaCreacion | date:'medium' }}
+    </p>
+
+    <button
+      type="button"
+      [disabled]="licenciaRevocando() !== null"
+      (click)="revocar(licencia)"
+    >
+      {{
+        licenciaRevocando() === licencia.id
+          ? 'Revocando...'
+          : 'Revocar'
+      }}
+    </button>
+  </article>
+</section>
