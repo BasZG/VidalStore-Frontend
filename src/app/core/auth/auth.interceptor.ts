@@ -1,6 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { from, switchMap } from 'rxjs';
+import {
+  catchError,
+  from,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { AuthService } from './auth';
 
 const GATEWAY_ORIGIN = 'http://localhost:8080';
@@ -38,6 +43,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       });
 
       return next(reqConToken);
+    }),
+    catchError((error: unknown) => {
+      if (
+        typeof error === 'object' &&
+        error !== null &&
+        'status' in error &&
+        error.status === 401
+      ) {
+        authService.invalidarSesion();
+      }
+
+      return throwError(() => error);
     }),
   );
 };

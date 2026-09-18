@@ -19,6 +19,7 @@ describe('authInterceptor', () => {
 
   const authServiceMock = {
     obtenerAccessToken: vi.fn(),
+    invalidarSesion: vi.fn(),
   };
 
   beforeEach(() => {
@@ -211,5 +212,75 @@ describe('authInterceptor', () => {
     req.flush([]);
 
     await respuesta;
+  });
+
+  it('debe invalidar la sesion cuando el Gateway responde 401', async () => {
+    authServiceMock.obtenerAccessToken.mockResolvedValue(
+      'token-prueba',
+    );
+
+    const respuesta = firstValueFrom(
+      http.get(
+        'http://localhost:8080/v1/biblioteca',
+      ),
+    );
+
+    await Promise.resolve();
+
+    const req = httpTesting.expectOne(
+      'http://localhost:8080/v1/biblioteca',
+    );
+
+    req.flush(
+      { message: 'Unauthorized' },
+      {
+        status: 401,
+        statusText: 'Unauthorized',
+      },
+    );
+
+    await expect(respuesta).rejects.toMatchObject({
+      status: 401,
+      error: { message: 'Unauthorized' },
+    });
+
+    expect(
+      authServiceMock.invalidarSesion,
+    ).toHaveBeenCalledOnce();
+  });
+
+  it('no debe invalidar la sesion cuando el Gateway responde 403', async () => {
+    authServiceMock.obtenerAccessToken.mockResolvedValue(
+      'token-prueba',
+    );
+
+    const respuesta = firstValueFrom(
+      http.get(
+        'http://localhost:8080/v1/administracion/licencias',
+      ),
+    );
+
+    await Promise.resolve();
+
+    const req = httpTesting.expectOne(
+      'http://localhost:8080/v1/administracion/licencias',
+    );
+
+    req.flush(
+      { message: 'Forbidden' },
+      {
+        status: 403,
+        statusText: 'Forbidden',
+      },
+    );
+
+    await expect(respuesta).rejects.toMatchObject({
+      status: 403,
+      error: { message: 'Forbidden' },
+    });
+
+    expect(
+      authServiceMock.invalidarSesion,
+    ).not.toHaveBeenCalled();
   });
 });
