@@ -6,19 +6,42 @@ import {
   CatalogoService,
   Juego,
 } from './catalogo.service';
+import {
+  BibliotecaService,
+  Licencia,
+} from '../biblioteca/biblioteca.service';
 
 describe('Catalogo', () => {
   let catalogoSubject: Subject<Juego[]>;
+  let compraSubject: Subject<Licencia>;
   let serviceMock: {
     obtenerCatalogo: ReturnType<typeof vi.fn>;
+  };
+  let bibliotecaServiceMock: {
+    comprarJuego: ReturnType<typeof vi.fn>;
+  };
+
+  const juegoPrueba: Juego = {
+    id: 'juego-123',
+    titulo: 'Vidal Quest',
+    descripcion: 'Juego de prueba',
+    imagen: 'vidal.jpg',
+    precio: 12990,
   };
 
   beforeEach(async () => {
     catalogoSubject = new Subject<Juego[]>();
+    compraSubject = new Subject<Licencia>();
 
     serviceMock = {
       obtenerCatalogo: vi.fn(() =>
         catalogoSubject.asObservable(),
+      ),
+    };
+
+    bibliotecaServiceMock = {
+      comprarJuego: vi.fn(() =>
+        compraSubject.asObservable(),
       ),
     };
 
@@ -28,6 +51,10 @@ describe('Catalogo', () => {
         {
           provide: CatalogoService,
           useValue: serviceMock,
+        },
+        {
+          provide: BibliotecaService,
+          useValue: bibliotecaServiceMock,
         },
       ],
     }).compileComponents();
@@ -52,13 +79,7 @@ describe('Catalogo', () => {
     fixture.detectChanges();
 
     catalogoSubject.next([
-      {
-        id: 'juego-123',
-        titulo: 'Vidal Quest',
-        descripcion: 'Juego de prueba',
-        imagen: 'vidal.jpg',
-        precio: 12990,
-      },
+      juegoPrueba,
     ]);
 
     await fixture.whenStable();
@@ -156,4 +177,89 @@ describe('Catalogo', () => {
       'Ocurrió un error al cargar el catálogo.',
     );
   });
+
+  it('debe comprar usando el id del juego', async () => {
+    const fixture = TestBed.createComponent(Catalogo);
+
+    fixture.detectChanges();
+    catalogoSubject.next([juegoPrueba]);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const boton = fixture.nativeElement.querySelector(
+      'button',
+    ) as HTMLButtonElement;
+
+    boton.click();
+    fixture.detectChanges();
+
+    expect(
+      bibliotecaServiceMock.comprarJuego,
+    ).toHaveBeenCalledWith('juego-123');
+
+    expect(fixture.componentInstance.compraEnCurso())
+      .toBe('juego-123');
+
+    expect(boton.textContent).toContain('Comprando...');
+  });
+
+  it('debe mostrar compra exitosa', async () => {
+    const fixture = TestBed.createComponent(Catalogo);
+
+    fixture.componentInstance.comprar(juegoPrueba);
+
+    compraSubject.next({
+      id: 'licencia-1',
+      juegoId: 'juego-123',
+      usuarioSub: 'usuario-1',
+      fechaCreacion: '2026-09-17T20:00:00.000Z',
+    });
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain(
+      'Compraste Vidal Quest correctamente.',
+    );
+
+    expect(fixture.componentInstance.compraEnCurso())
+      .toBeNull();
+  });
+
+  it.each([
+    [
+      400,
+      'No fue posible completar la compra.',
+    ],
+    [
+      401,
+      'Tu sesión expiró. Inicia sesión nuevamente.',
+    ],
+    [
+      403,
+      'No tienes permiso para comprar este juego.',
+    ],
+    [
+      500,
+      'Ocurrió un error al realizar la compra.',
+    ],
+  ])(
+    'debe mostrar el mensaje de compra correspondiente para %i',
+    async (status, mensaje) => {
+      const fixture = TestBed.createComponent(Catalogo);
+
+      fixture.componentInstance.comprar(juegoPrueba);
+      compraSubject.error({ status });
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain(
+        mensaje,
+      );
+
+      expect(fixture.componentInstance.compraEnCurso())
+        .toBeNull();
+    },
+  );
 });

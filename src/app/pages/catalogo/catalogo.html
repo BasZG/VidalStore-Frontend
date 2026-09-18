@@ -13,9 +13,36 @@
 </div>
 
 <div *ngIf="!cargando() && !error() && juegos().length > 0">
-  <div *ngFor="let juego of juegos()">
+  <article *ngFor="let juego of juegos()">
     <h3>{{ juego.titulo }}</h3>
+
+    <img
+      *ngIf="juego.imagen"
+      [src]="juego.imagen"
+      [alt]="juego.titulo"
+    />
+
     <p>{{ juego.descripcion }}</p>
     <p>${{ juego.precio }}</p>
-  </div>
+
+    <button
+      type="button"
+      [disabled]="compraEnCurso() !== null"
+      (click)="comprar(juego)"
+    >
+      {{
+        compraEnCurso() === juego.id
+          ? 'Comprando...'
+          : 'Comprar'
+      }}
+    </button>
+  </article>
+</div>
+
+<div *ngIf="mensajeCompra()">
+  {{ mensajeCompra() }}
+</div>
+
+<div *ngIf="errorCompra()">
+  {{ errorCompra() }}
 </div>
