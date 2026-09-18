@@ -62,4 +62,31 @@ describe('BibliotecaService', () => {
 
     req.flush(licencia);
   });
+
+  it('debe obtener la biblioteca sin seleccionar usuario', () => {
+    const licencias: Licencia[] = [
+      {
+        id: 'licencia-1',
+        juegoId: 'juego-123',
+        usuarioSub: 'usuario-1',
+        fechaCreacion: '2026-09-17T20:00:00.000Z',
+      },
+    ];
+
+    service.obtenerBiblioteca().subscribe(
+      (resultado) => {
+        expect(resultado).toEqual(licencias);
+      },
+    );
+
+    const req = httpTesting.expectOne(
+      'http://localhost:8080/v1/biblioteca',
+    );
+
+    expect(req.request.method).toBe('GET');
+    expect(req.request.params.keys()).toEqual([]);
+    expect(req.request.body).toBeNull();
+
+    req.flush(licencias);
+  });
 });
