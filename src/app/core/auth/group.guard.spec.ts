@@ -124,4 +124,30 @@ describe('groupGuard', () => {
 
     esperarRedireccion(resultado as boolean | UrlTree);
   });
+
+  it('rechaza una ruta protegida sin grupos configurados', async () => {
+  authServiceMock.cargarGrupos.mockResolvedValue([
+    'administradores',
+  ]);
+
+  const ruta = {
+    data: {},
+  } as unknown as ActivatedRouteSnapshot;
+
+  const estado =
+    {} as RouterStateSnapshot;
+
+  const resultado =
+    await TestBed.runInInjectionContext(() =>
+      groupGuard(ruta, estado),
+    );
+
+  esperarRedireccion(
+    resultado as boolean | UrlTree,
+  );
+
+  expect(
+    authServiceMock.cargarGrupos,
+  ).not.toHaveBeenCalled();
+  });
 });
