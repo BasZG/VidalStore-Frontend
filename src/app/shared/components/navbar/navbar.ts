@@ -15,6 +15,7 @@ export class Navbar implements OnInit {
   protected readonly email = signal<string | null>(null);
   protected readonly nombre = signal<string | null>(null);
   protected readonly menuAbierto = signal(false);
+  protected readonly grupos = this.authService.grupos;
 
   async ngOnInit() {
     await this.cargarUsuario();
@@ -33,20 +34,36 @@ export class Navbar implements OnInit {
     this.menuAbierto.update((valor) => !valor);
   }
 
-  private async cargarUsuario() {
-    const usuarioActual = await this.authService.obtenerUsuarioActual();
+private async cargarUsuario() {
+  const usuarioActual =
+    await this.authService.obtenerUsuarioActual();
 
-    if (!usuarioActual) {
-      return;
-    }
-
-    this.usuario.set(usuarioActual.username);
-
-    const atributos = await this.authService.obtenerAtributosUsuario();
-
-    if (atributos) {
-      this.email.set(atributos.email ?? null);
-      this.nombre.set(atributos.name ?? null);
-    }
+  if (!usuarioActual) {
+    return;
   }
+
+  this.usuario.set(usuarioActual.username);
+
+  await this.authService.cargarGrupos();
+
+  const atributos =
+    await this.authService.obtenerAtributosUsuario();
+
+  if (atributos) {
+    this.email.set(atributos.email ?? null);
+    this.nombre.set(atributos.name ?? null);
+  }
+  }
+
+  protected esEditor(): boolean {
+  return (
+    this.grupos().includes('editores') ||
+    this.grupos().includes('administradores')
+  );
+}
+
+protected esAdministrador(): boolean {
+  return this.grupos().includes('administradores');
+}
+
 }

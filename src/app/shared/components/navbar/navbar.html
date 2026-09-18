@@ -4,6 +4,7 @@
   </a>
 
   <div class="navegacion">
+  @if (usuario()) {
     <a routerLink="/catalogo" routerLinkActive="activo">
       Catálogo
     </a>
@@ -12,50 +13,63 @@
       Biblioteca
     </a>
 
-    <a routerLink="/editor" routerLinkActive="activo">
-      Editor
-    </a>
+    @if (esEditor()) {
+      <a routerLink="/editor" routerLinkActive="activo">
+        Editor
+      </a>
+    }
 
-    <a routerLink="/administracion" routerLinkActive="activo">
-      Administración
-    </a>
+    @if (esAdministrador()) {
+      <a
+        routerLink="/administracion"
+        routerLinkActive="activo"
+      >
+        Administración
+      </a>
+    }
 
-    @if (usuario()) {
-      <div class="usuario">
-        <button
-          type="button"
-          class="usuario-boton"
-          (click)="alternarMenu()"
-        >
-          {{ nombre() || email() || usuario() }}
-        </button>
-
-        @if (menuAbierto()) {
-          <div class="usuario-menu">
-            <p>
-              <strong>Nombre:</strong>
-              {{ nombre() || 'No registrado' }}
-            </p>
-
-            <p>
-              <strong>Correo:</strong>
-              {{ email() || usuario() }}
-            </p>
-
-            <button type="button" (click)="cerrarSesion()">
-              Cerrar sesión
-            </button>
-          </div>
-        }
-      </div>
-    } @else {
+    <div class="usuario">
       <button
         type="button"
-        class="login"
-        (click)="iniciarSesion()"
+        class="usuario-boton"
+        (click)="alternarMenu()"
       >
-        Iniciar sesión
+        {{ nombre() || email() || usuario() }}
       </button>
-    }
-  </div>
+
+      @if (menuAbierto()) {
+        <div class="usuario-menu">
+          <p>
+            <strong>Nombre:</strong>
+            {{ nombre() || 'No registrado' }}
+          </p>
+
+          <p>
+            <strong>Correo:</strong>
+            {{ email() || usuario() }}
+          </p>
+
+          <button
+            type="button"
+            (click)="cerrarSesion()"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      }
+    </div>
+  } @else {
+    <a routerLink="/registro" routerLinkActive="activo">
+      Crear cuenta
+    </a>
+
+    <button
+      type="button"
+      class="login"
+      (click)="iniciarSesion()"
+    >
+      Iniciar sesión
+    </button>
+  }
+</div>
 </nav>

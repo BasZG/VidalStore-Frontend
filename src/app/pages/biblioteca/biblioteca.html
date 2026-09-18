@@ -1,2 +1,47 @@
 <h1>Mi biblioteca</h1>
-<p>Aquí se mostrarán las licencias del usuario autenticado.</p>
+
+<div *ngIf="cargando()">
+  Cargando biblioteca...
+</div>
+
+<div *ngIf="error()">
+  <p>{{ error() }}</p>
+
+  <button
+    type="button"
+    (click)="cargarBiblioteca()"
+  >
+    Reintentar
+  </button>
+</div>
+
+<div
+  *ngIf="
+    !cargando() &&
+    !error() &&
+    licencias().length === 0
+  "
+>
+  Todavía no tienes juegos en tu biblioteca.
+</div>
+
+<div
+  *ngIf="
+    !cargando() &&
+    !error() &&
+    licencias().length > 0
+  "
+>
+  <article *ngFor="let licencia of licencias()">
+    <h2>Juego {{ licencia.juegoId }}</h2>
+
+    <p>
+      Licencia: {{ licencia.id }}
+    </p>
+
+    <p>
+      Adquirido:
+      {{ licencia.fechaCreacion | date:'medium' }}
+    </p>
+  </article>
+</div>
