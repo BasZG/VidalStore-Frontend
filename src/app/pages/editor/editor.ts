@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CatalogoService, CrearJuego, Juego } from '../catalogo/catalogo.service';
+import { GameCard } from '../../shared/components/game-card/game-card';
 
 @Component({
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, GameCard],
   selector: 'app-editor',
   styleUrl: './editor.css',
   templateUrl: './editor.html',
