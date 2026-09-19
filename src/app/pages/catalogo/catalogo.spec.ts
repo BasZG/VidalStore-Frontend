@@ -13,11 +13,13 @@ import {
 
 describe('Catalogo', () => {
   let catalogoSubject: Subject<Juego[]>;
+  let bibliotecaSubject: Subject<Licencia[]>;
   let compraSubject: Subject<Licencia>;
   let serviceMock: {
     obtenerCatalogo: ReturnType<typeof vi.fn>;
   };
   let bibliotecaServiceMock: {
+    obtenerBiblioteca: ReturnType<typeof vi.fn>;
     comprarJuego: ReturnType<typeof vi.fn>;
   };
 
@@ -31,6 +33,7 @@ describe('Catalogo', () => {
 
   beforeEach(async () => {
     catalogoSubject = new Subject<Juego[]>();
+    bibliotecaSubject = new Subject<Licencia[]>();
     compraSubject = new Subject<Licencia>();
 
     serviceMock = {
@@ -40,6 +43,9 @@ describe('Catalogo', () => {
     };
 
     bibliotecaServiceMock = {
+      obtenerBiblioteca: vi.fn(() =>
+        bibliotecaSubject.asObservable(),
+      ),
       comprarJuego: vi.fn(() =>
         compraSubject.asObservable(),
       ),

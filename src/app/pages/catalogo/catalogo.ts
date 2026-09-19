@@ -19,6 +19,13 @@ export class Catalogo implements OnInit {
   compraEnCurso = signal<string | null>(null);
   mensajeCompra = signal<string | null>(null);
   errorCompra = signal<string | null>(null);
+  juegosComprados = signal<ReadonlySet<string>>(
+    new Set(),
+  );
+  cargandoBiblioteca = signal(true);
+  advertenciaBiblioteca = signal<string | null>(
+    null,
+  );
 
   constructor(
     private readonly catalogoService: CatalogoService,
@@ -26,6 +33,8 @@ export class Catalogo implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cargarBiblioteca();
+
     this.catalogoService.obtenerCatalogo().subscribe({
       next: (juegos) => {
         this.juegos.set(juegos);
@@ -73,5 +82,30 @@ export class Catalogo implements OnInit {
           this.compraEnCurso.set(null);
         },
       });
+  }
+
+  estaComprado(juegoId: string): boolean {
+    return this.juegosComprados().has(juegoId);
+  }
+
+  private cargarBiblioteca(): void {
+    this.bibliotecaService.obtenerBiblioteca().subscribe({
+      next: (licencias) => {
+        this.juegosComprados.set(
+          new Set(
+            licencias.map(
+              (licencia) => licencia.juegoId,
+            ),
+          ),
+        );
+        this.cargandoBiblioteca.set(false);
+      },
+      error: () => {
+        this.advertenciaBiblioteca.set(
+          'No pudimos verificar tus juegos comprados.',
+        );
+        this.cargandoBiblioteca.set(false);
+      },
+    });
   }
 }
