@@ -1,1 +1,53 @@
-<h2>Procesando inicio de sesión...</h2>
+<main class="mx-auto flex min-h-[60vh] max-w-xl items-center justify-center px-6 py-12">
+  <section
+    class="w-full rounded-lg border border-[var(--vs-border)] bg-[var(--vs-surface)] p-8 text-center"
+  >
+    @if (estado() === 'procesando') {
+      <h1
+        class="text-2xl font-semibold text-[var(--vs-text)]"
+      >
+        Procesando inicio de sesión
+      </h1>
+
+      <p
+        class="mt-3 text-sm text-[var(--vs-text-secondary)]"
+        role="status"
+      >
+        Estamos verificando tu sesión. Esto puede tardar unos segundos.
+      </p>
+    } @else {
+      <h1
+        class="text-2xl font-semibold text-[var(--vs-text)]"
+      >
+        No se pudo iniciar sesión
+      </h1>
+
+      <p
+        class="mt-3 text-sm text-[var(--vs-text-secondary)]"
+        role="alert"
+      >
+        {{ mensajeError() }}
+      </p>
+
+      <div
+        class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center"
+      >
+        <button
+          type="button"
+          (click)="iniciarSesion()"
+          class="rounded bg-[var(--vs-primary)] px-4 py-2 font-semibold text-[#0b1622] hover:bg-[var(--vs-primary-hover)]"
+        >
+          Iniciar sesión
+        </button>
+
+        <button
+          type="button"
+          (click)="volverInicio()"
+          class="rounded border border-[var(--vs-border)] px-4 py-2 font-medium text-[var(--vs-text)] hover:bg-[var(--vs-surface-hover)]"
+        >
+          Volver al inicio
+        </button>
+      </div>
+    }
+  </section>
+</main>
