@@ -189,23 +189,39 @@ export class AuthService {
   }
 
   async obtenerAccessToken(): Promise<string | null> {
-    try {
-      const session =
-        await this.amplifyAuth.fetchAuthSession();
+  const revisionInicial =
+    this.revisionSesionSignal();
 
-      const token =
-        session.tokens?.accessToken?.toString() ?? null;
+  try {
+    const session =
+      await this.amplifyAuth.fetchAuthSession();
 
-      if (!token) {
-        this.invalidarSesion();
-      }
-
-      return token;
-    } catch {
-      this.invalidarSesion();
+    if (
+      revisionInicial !==
+      this.revisionSesionSignal()
+    ) {
       return null;
     }
+
+    const token =
+      session.tokens?.accessToken?.toString() ?? null;
+
+    if (!token) {
+      this.invalidarSesion();
+    }
+
+    return token;
+  } catch {
+    if (
+      revisionInicial ===
+      this.revisionSesionSignal()
+    ) {
+      this.invalidarSesion();
+    }
+
+    return null;
   }
+}
 
   async cargarGrupos(): Promise<GrupoUsuario[]> {
     const sesionCargada = await this.cargarSesion();

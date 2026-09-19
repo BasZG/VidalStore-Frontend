@@ -197,4 +197,32 @@ describe('AuthService', () => {
     expect(service.perfil()).toBeNull();
     expect(service.grupos()).toEqual([]);
   });
+
+  it('no debe usar un Access Token obtenido por una sesion anterior', async () => {
+  let resolverSesion:
+    | ((valor: ReturnType<typeof crearSesion>) => void)
+    | undefined;
+
+  authMock.fetchAuthSession.mockReturnValue(
+    new Promise((resolve) => {
+      resolverSesion = resolve;
+    }),
+  );
+
+  const obtencionToken =
+    service.obtenerAccessToken();
+
+  service.invalidarSesion();
+
+  resolverSesion?.(crearSesion());
+
+  const token = await obtencionToken;
+
+  expect(token).toBeNull();
+  expect(service.usuario()).toBeNull();
+  expect(service.perfil()).toBeNull();
+  expect(service.grupos()).toEqual([]);
+  expect(service.autenticado()).toBe(false);
+  });
+
 });
