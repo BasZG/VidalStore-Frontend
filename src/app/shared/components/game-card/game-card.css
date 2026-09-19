@@ -1,0 +1,132 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--vs-surface);
+  border: 1px solid var(--vs-border);
+  border-radius: 8px;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.game-card:hover {
+  background: var(--vs-surface-hover);
+  border-color: var(--vs-primary);
+  transform: translateY(-2px);
+}
+
+.game-card__image-wrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--vs-bg-secondary);
+}
+
+.game-card__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.game-card__image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--vs-text-secondary);
+  font-size: 0.9rem;
+}
+
+.game-card__badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 4px;
+  background: var(--vs-primary);
+  color: var(--vs-bg);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.game-card__content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1.1rem;
+}
+
+.game-card__title {
+  margin: 0;
+  color: var(--vs-text);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.game-card__genre {
+  margin: 0.3rem 0 0;
+  color: var(--vs-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.game-card__description {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--vs-text-secondary);
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.game-card__metadata {
+  margin: 0;
+  color: var(--vs-text-secondary);
+  font-size: 0.85rem;
+}
+
+.game-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.game-card__price {
+  color: var(--vs-text);
+  font-size: 1.1rem;
+}
+
+.game-card__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.game-card__action:disabled:hover {
+  background: var(--vs-accent);
+}
+
+@media (max-width: 480px) {
+  .game-card__footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .game-card__action {
+    width: 100%;
+  }
+}
