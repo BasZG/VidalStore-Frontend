@@ -1,0 +1,69 @@
+<article class="game-card">
+  <div class="game-card__image-wrapper">
+    @if (imagen) {
+      <img
+        class="game-card__image"
+        [src]="imagen"
+        [alt]="titulo"
+      />
+    } @else {
+      <div
+        class="game-card__image-placeholder"
+        aria-hidden="true"
+      >
+        Sin imagen
+      </div>
+    }
+
+    @if (etiqueta) {
+      <span class="game-card__badge">
+        {{ etiqueta }}
+      </span>
+    }
+  </div>
+
+  <div class="game-card__content">
+    <header>
+      <h2 class="game-card__title">
+        {{ titulo }}
+      </h2>
+
+      @if (genero) {
+        <p class="game-card__genre">
+          {{ genero }}
+        </p>
+      }
+    </header>
+
+    @if (descripcion) {
+      <p class="game-card__description">
+        {{ descripcion }}
+      </p>
+    }
+
+    @if (fechaPublicacion) {
+      <p class="game-card__metadata">
+        Publicado: {{ fechaPublicacion }}
+      </p>
+    }
+
+    <footer class="game-card__footer">
+      @if (precio !== null) {
+        <strong class="game-card__price">
+          {{ formatearPrecio(precio) }}
+        </strong>
+      }
+
+      @if (accionTexto) {
+        <button
+          type="button"
+          class="vs-btn vs-btn-buy game-card__action"
+          [disabled]="accionDeshabilitada"
+          (click)="ejecutarAccion()"
+        >
+          {{ accionTexto }}
+        </button>
+      }
+    </footer>
+  </div>
+</article>
