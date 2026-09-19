@@ -1,18 +1,27 @@
-import { Injectable, signal } from '@angular/core';
 import {
-  confirmSignUp,
-  fetchAuthSession,
-  fetchUserAttributes,
-  getCurrentUser,
-  signInWithRedirect,
-  signOut,
-  signUp,
-} from 'aws-amplify/auth';
+  Injectable,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import {
+  AMPLIFY_AUTH,
+  AmplifyAuthPort,
+} from './amplify-auth';
 
 export type GrupoUsuario =
   | 'jugadores'
   | 'editores'
   | 'administradores';
+
+export type UsuarioSesion = Awaited<
+  ReturnType<AmplifyAuthPort['getCurrentUser']>
+>;
+
+export interface PerfilVisible {
+  nombre: string | null;
+  email: string | null;
+}
 
 const GRUPOS_VALIDOS: GrupoUsuario[] = [
   'jugadores',
@@ -24,25 +33,56 @@ const GRUPOS_VALIDOS: GrupoUsuario[] = [
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly amplifyAuth = inject(AMPLIFY_AUTH);
+
+  private readonly usuarioSignal =
+    signal<UsuarioSesion | null>(null);
+  private readonly perfilSignal =
+    signal<PerfilVisible | null>(null);
   private readonly gruposSignal =
     signal<GrupoUsuario[]>([]);
+  private readonly revisionSesionSignal = signal(0);
 
+  readonly usuario = this.usuarioSignal.asReadonly();
+  readonly perfil = this.perfilSignal.asReadonly();
   readonly grupos = this.gruposSignal.asReadonly();
+  readonly revisionSesion =
+    this.revisionSesionSignal.asReadonly();
+
+  readonly autenticado = computed(
+    () => this.usuarioSignal() !== null,
+  );
+
+  readonly nombreVisible = computed(() => {
+    const perfil = this.perfilSignal();
+
+    return (
+      perfil?.nombre?.trim() ||
+      perfil?.email?.trim() ||
+      'Usuario'
+    );
+  });
 
   iniciarSesion() {
-    return signInWithRedirect();
+    return this.amplifyAuth.signInWithRedirect();
   }
 
   async cerrarSesion() {
-    try {
-      await signOut();
-    } finally {
-      this.gruposSignal.set([]);
-    }
+    this.invalidarSesion();
+    await this.amplifyAuth.signOut();
+  }
+
+  invalidarSesion(): void {
+    this.revisionSesionSignal.update(
+      (revision) => revision + 1,
+    );
+    this.usuarioSignal.set(null);
+    this.perfilSignal.set(null);
+    this.gruposSignal.set([]);
   }
 
   registrarUsuario(email: string, password: string) {
-    return signUp({
+    return this.amplifyAuth.signUp({
       username: email,
       password,
       options: {
@@ -54,49 +94,38 @@ export class AuthService {
   }
 
   confirmarRegistro(email: string, codigo: string) {
-    return confirmSignUp({
+    return this.amplifyAuth.confirmSignUp({
       username: email,
       confirmationCode: codigo,
     });
   }
 
-  async obtenerUsuarioActual() {
-    try {
-      return await getCurrentUser();
-    } catch {
-      return null;
-    }
-  }
+  async cargarSesion(): Promise<boolean> {
+    const revisionInicial =
+      this.revisionSesionSignal();
 
-  async obtenerAtributosUsuario() {
     try {
-      return await fetchUserAttributes();
-    } catch {
-      return null;
-    }
-  }
+      const [usuario, session] = await Promise.all([
+        this.amplifyAuth.getCurrentUser(),
+        this.amplifyAuth.fetchAuthSession(),
+      ]);
 
-  async obtenerAccessToken(): Promise<string | null> {
-    try {
-      const session = await fetchAuthSession();
+      if (
+        revisionInicial !==
+        this.revisionSesionSignal()
+      ) {
+        return false;
+      }
 
-      return (
-        session.tokens?.accessToken?.toString() ??
-        null
-      );
-    } catch {
-      return null;
-    }
-  }
+      const accessToken = session.tokens?.accessToken;
 
-  async cargarGrupos(): Promise<GrupoUsuario[]> {
-    try {
-      const session = await fetchAuthSession();
+      if (!accessToken) {
+        this.invalidarSesion();
+        return false;
+      }
 
       const gruposClaim =
-        session.tokens?.accessToken?.payload?.[
-          'cognito:groups'
-        ];
+        accessToken.payload?.['cognito:groups'];
 
       const grupos = Array.isArray(gruposClaim)
         ? gruposClaim.filter(
@@ -108,13 +137,98 @@ export class AuthService {
           )
         : [];
 
+      const idPayload =
+        session.tokens?.idToken?.payload;
+
+      const nombre =
+        typeof idPayload?.['name'] === 'string'
+          ? idPayload['name']
+          : null;
+
+      const email =
+        typeof idPayload?.['email'] === 'string'
+          ? idPayload['email']
+          : null;
+
+      this.usuarioSignal.set(usuario);
+      this.perfilSignal.set({
+        nombre,
+        email,
+      });
       this.gruposSignal.set(grupos);
 
-      return grupos;
+      return true;
     } catch {
-      this.gruposSignal.set([]);
-      return [];
+      if (
+        revisionInicial ===
+        this.revisionSesionSignal()
+      ) {
+        this.invalidarSesion();
+      }
+
+      return false;
     }
+  }
+
+  async obtenerUsuarioActual(): Promise<
+    UsuarioSesion | null
+  > {
+    const sesionCargada = await this.cargarSesion();
+
+    return sesionCargada
+      ? this.usuarioSignal()
+      : null;
+  }
+
+  async obtenerAtributosUsuario() {
+    try {
+      return await this.amplifyAuth.fetchUserAttributes();
+    } catch {
+      return null;
+    }
+  }
+
+  async obtenerAccessToken(): Promise<string | null> {
+  const revisionInicial =
+    this.revisionSesionSignal();
+
+  try {
+    const session =
+      await this.amplifyAuth.fetchAuthSession();
+
+    if (
+      revisionInicial !==
+      this.revisionSesionSignal()
+    ) {
+      return null;
+    }
+
+    const token =
+      session.tokens?.accessToken?.toString() ?? null;
+
+    if (!token) {
+      this.invalidarSesion();
+    }
+
+    return token;
+  } catch {
+    if (
+      revisionInicial ===
+      this.revisionSesionSignal()
+    ) {
+      this.invalidarSesion();
+    }
+
+    return null;
+  }
+}
+
+  async cargarGrupos(): Promise<GrupoUsuario[]> {
+    const sesionCargada = await this.cargarSesion();
+
+    return sesionCargada
+      ? this.gruposSignal()
+      : [];
   }
 
   tieneGrupo(grupo: GrupoUsuario): boolean {

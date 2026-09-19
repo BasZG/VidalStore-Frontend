@@ -12,7 +12,7 @@
     </a>
 
     <div class="flex flex-wrap items-center gap-1">
-      @if (usuario()) {
+      @if (autenticado()) {
         <a
           routerLink="/catalogo"
           routerLinkActive="bg-[var(--vs-surface-hover)] text-[var(--vs-primary)]"
@@ -55,7 +55,7 @@
             (click)="alternarMenu()"
             class="rounded border border-[var(--vs-border)] bg-[var(--vs-surface)] px-4 py-2 text-sm font-medium text-[var(--vs-text)] hover:bg-[var(--vs-surface-hover)]"
           >
-            {{ nombre() || email() || usuario() }}
+            {{ nombreVisible() }}
           </button>
 
           @if (menuAbierto()) {
@@ -74,13 +74,13 @@
                 <p
                   class="text-sm font-semibold text-[var(--vs-text)]"
                 >
-                  {{ nombre() || 'Nombre no registrado' }}
+                  {{ nombreVisible() }}
                 </p>
 
                 <p
                   class="mt-1 break-all text-sm text-[var(--vs-text-secondary)]"
                 >
-                  {{ email() || usuario() }}
+                  {{ perfil()?.email || 'Correo no registrado' }}
                 </p>
               </div>
 

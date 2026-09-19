@@ -1,5 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 import { AuthService } from '../../../core/auth/auth';
 
 @Component({
@@ -10,15 +14,18 @@ import { AuthService } from '../../../core/auth/auth';
 })
 export class Navbar implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
-  protected readonly usuario = signal<string | null>(null);
-  protected readonly email = signal<string | null>(null);
-  protected readonly nombre = signal<string | null>(null);
   protected readonly menuAbierto = signal(false);
+  protected readonly autenticado =
+    this.authService.autenticado;
+  protected readonly perfil = this.authService.perfil;
+  protected readonly nombreVisible =
+    this.authService.nombreVisible;
   protected readonly grupos = this.authService.grupos;
 
   async ngOnInit() {
-    await this.cargarUsuario();
+    await this.authService.cargarSesion();
   }
 
   async iniciarSesion() {
@@ -27,43 +34,29 @@ export class Navbar implements OnInit {
 
   async cerrarSesion() {
     this.menuAbierto.set(false);
-    await this.authService.cerrarSesion();
+
+    try {
+      await this.authService.cerrarSesion();
+    } catch {
+      // El estado local ya fue limpiado por AuthService.
+    }
+
+    await this.router.navigateByUrl('/');
   }
 
   alternarMenu() {
     this.menuAbierto.update((valor) => !valor);
   }
 
-private async cargarUsuario() {
-  const usuarioActual =
-    await this.authService.obtenerUsuarioActual();
-
-  if (!usuarioActual) {
-    return;
-  }
-
-  this.usuario.set(usuarioActual.username);
-
-  await this.authService.cargarGrupos();
-
-  const atributos =
-    await this.authService.obtenerAtributosUsuario();
-
-  if (atributos) {
-    this.email.set(atributos.email ?? null);
-    this.nombre.set(atributos.name ?? null);
-  }
-  }
-
   protected esEditor(): boolean {
-  return (
-    this.grupos().includes('editores') ||
-    this.grupos().includes('administradores')
-  );
-}
+    return (
+      this.grupos().includes('editores') ||
+      this.grupos().includes('administradores')
+    );
+  }
 
-protected esAdministrador(): boolean {
-  return this.grupos().includes('administradores');
-}
+  protected esAdministrador(): boolean {
+    return this.grupos().includes('administradores');
+  }
 
 }

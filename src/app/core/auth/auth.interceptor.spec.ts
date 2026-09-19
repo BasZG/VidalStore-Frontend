@@ -18,11 +18,14 @@ describe('authInterceptor', () => {
   let httpTesting: HttpTestingController;
 
   const authServiceMock = {
-    obtenerAccessToken: vi.fn(),
-  };
+  obtenerAccessToken: vi.fn(),
+  invalidarSesion: vi.fn(),
+  revisionSesion: vi.fn(() => 0),
+};
 
   beforeEach(() => {
     vi.clearAllMocks();
+    authServiceMock.revisionSesion.mockReturnValue(0);
 
     TestBed.configureTestingModule({
       providers: [
@@ -211,5 +214,116 @@ describe('authInterceptor', () => {
     req.flush([]);
 
     await respuesta;
+  });
+
+  it('debe invalidar la sesion cuando el Gateway responde 401', async () => {
+    authServiceMock.obtenerAccessToken.mockResolvedValue(
+      'token-prueba',
+    );
+
+    const respuesta = firstValueFrom(
+      http.get(
+        'http://localhost:8080/v1/biblioteca',
+      ),
+    );
+
+    await Promise.resolve();
+
+    const req = httpTesting.expectOne(
+      'http://localhost:8080/v1/biblioteca',
+    );
+
+    req.flush(
+      { message: 'Unauthorized' },
+      {
+        status: 401,
+        statusText: 'Unauthorized',
+      },
+    );
+
+    await expect(respuesta).rejects.toMatchObject({
+      status: 401,
+      error: { message: 'Unauthorized' },
+    });
+
+    expect(
+      authServiceMock.invalidarSesion,
+    ).toHaveBeenCalledOnce();
+  });
+
+  it('no debe invalidar la sesion cuando el Gateway responde 403', async () => {
+    authServiceMock.obtenerAccessToken.mockResolvedValue(
+      'token-prueba',
+    );
+
+    const respuesta = firstValueFrom(
+      http.get(
+        'http://localhost:8080/v1/administracion/licencias',
+      ),
+    );
+
+    await Promise.resolve();
+
+    const req = httpTesting.expectOne(
+      'http://localhost:8080/v1/administracion/licencias',
+    );
+
+    req.flush(
+      { message: 'Forbidden' },
+      {
+        status: 403,
+        statusText: 'Forbidden',
+      },
+    );
+
+    await expect(respuesta).rejects.toMatchObject({
+      status: 403,
+      error: { message: 'Forbidden' },
+    });
+
+    expect(
+      authServiceMock.invalidarSesion,
+    ).not.toHaveBeenCalled();
+  });
+  it('no debe invalidar una sesion nueva por un 401 de una solicitud antigua', async () => {
+  let revisionActual = 1;
+
+  authServiceMock.revisionSesion.mockImplementation(
+    () => revisionActual,
+  );
+
+  authServiceMock.obtenerAccessToken.mockResolvedValue(
+    'token-sesion-anterior',
+  );
+
+  const respuesta = firstValueFrom(
+    http.get(
+      'http://localhost:8080/v1/biblioteca',
+    ),
+  );
+
+  await Promise.resolve();
+
+  const req = httpTesting.expectOne(
+    'http://localhost:8080/v1/biblioteca',
+  );
+
+  revisionActual = 2;
+
+  req.flush(
+    { message: 'Unauthorized' },
+    {
+      status: 401,
+      statusText: 'Unauthorized',
+    },
+  );
+
+  await expect(respuesta).rejects.toMatchObject({
+    status: 401,
+  });
+
+  expect(
+    authServiceMock.invalidarSesion,
+  ).not.toHaveBeenCalled();
   });
 });
