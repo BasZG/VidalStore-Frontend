@@ -21,6 +21,9 @@ describe('Administracion', () => {
   };
 
   beforeEach(async () => {
+   vi.restoreAllMocks();
+   vi.spyOn(window, 'confirm').mockReturnValue(true);
+
     serviceMock = {
       obtenerLicencias: vi.fn(() => of([])),
       revocarLicencia: vi.fn(() => of(licencia)),
@@ -61,7 +64,7 @@ describe('Administracion', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain(
-      'No hay licencias activas.',
+      'No hay usuarios con licencias activas.',
     );
   });
 

@@ -46,7 +46,7 @@ describe('Editor', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Vidal Quest');
-    expect(fixture.nativeElement.textContent).toContain('12990');
+    expect(fixture.nativeElement.textContent).toContain('$12.990');
   });
 
   it('debe mostrar el estado vacio', () => {

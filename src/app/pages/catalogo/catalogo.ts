@@ -85,7 +85,7 @@ export class Catalogo implements OnInit {
         error: (error) => {
           if (
             error.status === 409 &&
-            error.error?.code ===
+            error.error?.message ===
               'LICENCIA_YA_EXISTE'
           ) {
             this.marcarComoComprado(juego.id);
