@@ -1,48 +1,63 @@
-<h1>Catálogo</h1>
+<main class="catalogo-page">
+  <header class="catalogo-header">
+    <p class="catalogo-kicker">VidalStore</p>
+    <h1>Catálogo</h1>
+    <p>Descubre tu próximo juego.</p>
+  </header>
 
-<div *ngIf="cargando()">
-  Cargando catálogo...
-</div>
+  <p *ngIf="cargando()" class="catalogo-estado">
+    Cargando catálogo...
+  </p>
 
-<div *ngIf="error()">
-  {{ error() }}
-</div>
+  <p *ngIf="error()" class="catalogo-mensaje catalogo-error">
+    {{ error() }}
+  </p>
 
-<div *ngIf="!cargando() && !error() && juegos().length === 0">
-  No hay juegos en el catálogo todavía.
-</div>
+  <p
+    *ngIf="advertenciaBiblioteca()"
+    class="catalogo-mensaje catalogo-advertencia"
+  >
+    {{ advertenciaBiblioteca() }}
+  </p>
 
-<div *ngIf="!cargando() && !error() && juegos().length > 0">
-  <article *ngFor="let juego of juegos()">
-    <h3>{{ juego.titulo }}</h3>
+  <p
+    *ngIf="mensajeCompra()"
+    class="catalogo-mensaje catalogo-exito"
+  >
+    {{ mensajeCompra() }}
+  </p>
 
-    <img
-      *ngIf="juego.imagen"
-      [src]="juego.imagen"
-      [alt]="juego.titulo"
+  <p
+    *ngIf="errorCompra()"
+    class="catalogo-mensaje catalogo-error"
+  >
+    {{ errorCompra() }}
+  </p>
+
+  <p
+    *ngIf="!cargando() && !error() && juegos().length === 0"
+    class="catalogo-estado"
+  >
+    No hay juegos en el catálogo todavía.
+  </p>
+
+  <section
+    *ngIf="!cargando() && !error() && juegos().length > 0"
+    class="catalogo-grid"
+    aria-label="Juegos disponibles"
+  >
+    <app-game-card
+      *ngFor="let juego of juegos()"
+      [titulo]="juego.titulo"
+      [descripcion]="juego.descripcion"
+      [imagen]="juego.imagen"
+      [precio]="juego.precio"
+      [genero]="juego.genero ?? null"
+      [fechaPublicacion]="juego.fechaPublicacion ?? null"
+      [etiqueta]="estaComprado(juego.id) ? 'En tu biblioteca' : null"
+      [accionTexto]="textoAccion(juego.id)"
+      [accionDeshabilitada]="accionDeshabilitada(juego.id)"
+      (accion)="comprar(juego)"
     />
-
-    <p>{{ juego.descripcion }}</p>
-    <p>${{ juego.precio }}</p>
-
-    <button
-      type="button"
-      [disabled]="compraEnCurso() !== null"
-      (click)="comprar(juego)"
-    >
-      {{
-        compraEnCurso() === juego.id
-          ? 'Comprando...'
-          : 'Comprar'
-      }}
-    </button>
-  </article>
-</div>
-
-<div *ngIf="mensajeCompra()">
-  {{ mensajeCompra() }}
-</div>
-
-<div *ngIf="errorCompra()">
-  {{ errorCompra() }}
-</div>
+  </section>
+</main>

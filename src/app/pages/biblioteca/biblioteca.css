@@ -1,0 +1,82 @@
+.biblioteca-page {
+  width: min(100% - 2rem, var(--vs-max-width));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.biblioteca-header {
+  margin-bottom: 2rem;
+}
+
+.biblioteca-header h1 {
+  margin: 0.25rem 0;
+  color: var(--vs-text);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
+.biblioteca-header p {
+  margin: 0;
+  color: var(--vs-text-secondary);
+}
+
+.biblioteca-kicker {
+  color: var(--vs-primary) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.biblioteca-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 17rem), 1fr)
+  );
+  gap: 1.5rem;
+}
+
+.biblioteca-item {
+  overflow: hidden;
+  border: 1px solid var(--vs-border);
+  border-radius: 0.75rem;
+  background: var(--vs-surface);
+}
+
+.biblioteca-licencia {
+  border-top: 1px solid var(--vs-border);
+  padding: 1rem;
+  color: var(--vs-text-secondary);
+  font-size: 0.85rem;
+}
+
+.biblioteca-licencia p {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.biblioteca-estado,
+.biblioteca-mensaje {
+  margin: 1rem 0;
+  border: 1px solid var(--vs-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.biblioteca-estado {
+  color: var(--vs-text-secondary);
+}
+
+.biblioteca-advertencia {
+  border-color: #d69e2e;
+  color: #f6d365;
+}
+
+.biblioteca-error {
+  border-color: var(--vs-danger);
+  color: var(--vs-danger);
+}
+
+.biblioteca-mensaje p {
+  margin-top: 0;
+}

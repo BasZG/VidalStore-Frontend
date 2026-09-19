@@ -1,0 +1,64 @@
+.catalogo-page {
+  width: min(100% - 2rem, var(--vs-max-width));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.catalogo-header {
+  margin-bottom: 2rem;
+}
+
+.catalogo-header h1 {
+  margin: 0.25rem 0;
+  color: var(--vs-text);
+  font-size: clamp(2rem, 5vw, 3.25rem);
+}
+
+.catalogo-header p {
+  margin: 0;
+  color: var(--vs-text-secondary);
+}
+
+.catalogo-kicker {
+  color: var(--vs-primary) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.catalogo-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 17rem), 1fr)
+  );
+  gap: 1.5rem;
+}
+
+.catalogo-estado,
+.catalogo-mensaje {
+  margin: 1rem 0;
+  border: 1px solid var(--vs-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.catalogo-estado {
+  color: var(--vs-text-secondary);
+}
+
+.catalogo-advertencia {
+  border-color: #d69e2e;
+  color: #f6d365;
+}
+
+.catalogo-exito {
+  border-color: #38a169;
+  color: #68d391;
+}
+
+.catalogo-error {
+  border-color: var(--vs-danger);
+  color: var(--vs-danger);
+}

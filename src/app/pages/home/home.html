@@ -1,2 +1,48 @@
-<h1>VidalStore</h1>
-<p>Tienda de videojuegos y gestión de licencias.</p>
+<main class="home-page">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-content">
+      <p class="hero-kicker">Tu próxima aventura comienza aquí</p>
+      <h1 id="hero-title">Descubre VidalStore</h1>
+      <p class="hero-description">
+        Encuentra nuevos mundos, compra tus juegos favoritos
+        y accede a ellos desde tu biblioteca personal.
+      </p>
+
+      <a
+        class="vs-btn hero-action"
+        routerLink="/catalogo"
+      >
+        Explorar catálogo
+      </a>
+    </div>
+
+    <div class="hero-decoration" aria-hidden="true">
+      <span class="hero-decoration-logo">VS</span>
+    </div>
+  </section>
+
+  <section
+    class="promociones"
+    aria-labelledby="promociones-title"
+  >
+    <header class="promociones-header">
+      <p class="promociones-kicker">Selección VidalStore</p>
+      <h2 id="promociones-title">Juegos destacados</h2>
+      <p>
+        Tres experiencias elegidas para comenzar a jugar.
+      </p>
+    </header>
+
+    <div class="promociones-grid">
+      <app-game-card
+        *ngFor="let promocion of promociones"
+        [titulo]="promocion.titulo"
+        [descripcion]="promocion.descripcion"
+        [imagen]="promocion.imagen"
+        [precio]="promocion.precio"
+        [genero]="promocion.genero"
+        [etiqueta]="promocion.etiqueta"
+      />
+    </div>
+  </section>
+</main>

@@ -1,86 +1,146 @@
-<h1>Gestión de catálogo</h1>
+<main class="editor-page">
+  <header class="editor-header">
+    <p class="editor-kicker">Gestión editorial</p>
+    <h1>Gestión de catálogo</h1>
+    <p>Crea juegos nuevos y actualiza los títulos publicados.</p>
+  </header>
 
-<form [formGroup]="formulario" (ngSubmit)="guardar()">
-  <h2>
-    {{ juegoEditando() ? 'Editar juego' : 'Crear juego' }}
-  </h2>
+  <form
+    class="editor-form"
+    [class.editor-form--editing]="juegoEditando()"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <div class="editor-form__header">
+      <div>
+        <span class="editor-mode">
+          {{ juegoEditando() ? 'Modo edición' : 'Nuevo juego' }}
+        </span>
+        <h2>{{ juegoEditando() ? juegoEditando()?.titulo : 'Crear juego' }}</h2>
+      </div>
 
-  <label>
-    Título
-    <input type="text" formControlName="titulo" />
-  </label>
+      <button
+        *ngIf="juegoEditando()"
+        type="button"
+        class="vs-btn editor-btn-secondary"
+        [disabled]="guardando()"
+        (click)="cancelarEdicion()"
+      >
+        Cancelar edición
+      </button>
+    </div>
 
-  <label>
-    Descripción
-    <textarea formControlName="descripcion"></textarea>
-  </label>
+    <div class="editor-fields">
+      <label class="editor-field">
+        <span>Título <strong>*</strong></span>
+        <input type="text" formControlName="titulo" />
+        <small *ngIf="formulario.controls.titulo.touched && formulario.controls.titulo.hasError('required')">
+          Ingresa el título del juego.
+        </small>
+      </label>
 
-  <label>
-    URL de la imagen
-    <input type="text" formControlName="imagen" />
-  </label>
+      <label class="editor-field editor-field--wide">
+        <span>Descripción <strong>*</strong></span>
+        <textarea formControlName="descripcion"></textarea>
+        <small *ngIf="formulario.controls.descripcion.touched && formulario.controls.descripcion.hasError('required')">
+          Ingresa una descripción.
+        </small>
+      </label>
 
-  <label>
-    Precio
-    <input type="number" min="0" formControlName="precio" />
-  </label>
+      <label class="editor-field editor-field--wide">
+        <span>URL de la imagen <strong>*</strong></span>
+        <input type="text" formControlName="imagen" />
+        <small *ngIf="formulario.controls.imagen.touched && formulario.controls.imagen.hasError('required')">
+          Ingresa la URL de la imagen.
+        </small>
+      </label>
 
-  <label>
-    Género (opcional)
-    <input type="text" formControlName="genero" />
-  </label>
+      <label class="editor-field">
+        <span>Precio <strong>*</strong></span>
+        <input type="number" min="0" formControlName="precio" />
+        <small *ngIf="formulario.controls.precio.touched && formulario.controls.precio.hasError('required')">
+          Ingresa el precio.
+        </small>
+        <small *ngIf="formulario.controls.precio.touched && formulario.controls.precio.hasError('min')">
+          El precio debe ser mayor o igual a cero.
+        </small>
+      </label>
 
-  <label>
-    Fecha de publicación (opcional)
-    <input type="date" formControlName="fechaPublicacion" />
-  </label>
+      <label class="editor-field">
+        <span>Género <em>Opcional</em></span>
+        <input type="text" formControlName="genero" />
+      </label>
 
-  <p *ngIf="formulario.invalid && formulario.touched">
-    Completa los campos obligatorios y usa un precio mayor o igual a cero.
+      <label class="editor-field">
+        <span>Fecha de publicación <em>Opcional</em></span>
+        <input type="date" formControlName="fechaPublicacion" />
+      </label>
+    </div>
+
+    <p
+      *ngIf="formulario.invalid && formulario.touched"
+      class="editor-validation-summary"
+    >
+      Revisa los campos marcados antes de continuar.
+    </p>
+
+    <div class="editor-actions">
+      <button
+        type="submit"
+        class="vs-btn vs-btn-buy"
+        [disabled]="guardando()"
+      >
+        {{ guardando() ? 'Guardando...' : juegoEditando() ? 'Guardar cambios' : 'Crear juego' }}
+      </button>
+    </div>
+  </form>
+
+  <p *ngIf="mensaje()" class="editor-message editor-success" role="status">
+    {{ mensaje() }}
   </p>
 
-  <div class="acciones">
-    <button type="submit" [disabled]="guardando()">
-      {{ guardando() ? 'Guardando...' : juegoEditando() ? 'Guardar cambios' : 'Crear juego' }}
-    </button>
-
+  <section *ngIf="error()" class="editor-message editor-error" role="alert">
+    <p>{{ error() }}</p>
     <button
-      *ngIf="juegoEditando()"
+      *ngIf="!guardando()"
       type="button"
-      [disabled]="guardando()"
-      (click)="cancelarEdicion()"
+      class="vs-btn editor-btn-secondary"
+      (click)="cargarJuegos()"
     >
-      Cancelar
+      Reintentar carga
     </button>
-  </div>
-</form>
+  </section>
 
-<p *ngIf="mensaje()" role="status">
-  {{ mensaje() }}
-</p>
+  <p *ngIf="cargando()" class="editor-state">
+    Cargando catálogo...
+  </p>
 
-<div *ngIf="error()" role="alert">
-  <p>{{ error() }}</p>
+  <p
+    *ngIf="!cargando() && !error() && juegos().length === 0"
+    class="editor-state"
+  >
+    No hay juegos en el catálogo todavía.
+  </p>
 
-  <button *ngIf="!guardando()" type="button" (click)="cargarJuegos()">Reintentar carga</button>
-</div>
+  <section *ngIf="!cargando() && !error() && juegos().length > 0" class="editor-published">
+    <div class="editor-published__header">
+      <p class="editor-kicker">Contenido disponible</p>
+      <h2>Juegos publicados</h2>
+    </div>
 
-<p *ngIf="cargando()">Cargando catálogo...</p>
-
-<p *ngIf="!cargando() && !error() && juegos().length === 0">
-  No hay juegos en el catálogo todavía.
-</p>
-
-<section *ngIf="!cargando() && !error() && juegos().length > 0">
-  <h2>Juegos publicados</h2>
-
-  <article *ngFor="let juego of juegos()">
-    <h3>{{ juego.titulo }}</h3>
-    <p>{{ juego.descripcion }}</p>
-    <p>Precio: ${{ juego.precio }}</p>
-    <p *ngIf="juego.genero">Género: {{ juego.genero }}</p>
-    <p *ngIf="juego.fechaPublicacion">Publicación: {{ juego.fechaPublicacion }}</p>
-
-    <button type="button" [disabled]="guardando()" (click)="editar(juego)">Editar</button>
-  </article>
-</section>
+    <div class="editor-grid">
+      <app-game-card
+        *ngFor="let juego of juegos()"
+        [titulo]="juego.titulo"
+        [descripcion]="juego.descripcion"
+        [imagen]="juego.imagen"
+        [precio]="juego.precio"
+        [genero]="juego.genero ?? null"
+        [fechaPublicacion]="juego.fechaPublicacion ?? null"
+        accionTexto="Editar"
+        [accionDeshabilitada]="guardando()"
+        (accion)="editar(juego)"
+      />
+    </div>
+  </section>
+</main>

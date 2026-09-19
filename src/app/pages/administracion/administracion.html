@@ -1,60 +1,100 @@
-<h1>Administración de licencias</h1>
-
-<p *ngIf="mensaje()" role="status">
-  {{ mensaje() }}
-</p>
-
-<div *ngIf="error()" role="alert">
-  <p>{{ error() }}</p>
-
-  <button
-    type="button"
-    [disabled]="licenciaRevocando() !== null"
-    (click)="cargarLicencias()"
-  >
-    Reintentar carga
-  </button>
-</div>
-
-<p *ngIf="cargando()">
-  Cargando licencias...
-</p>
-
-<p
-  *ngIf="
-    !cargando() &&
-    !error() &&
-    licencias().length === 0
-  "
->
-  No hay licencias activas.
-</p>
-
-<section
-  *ngIf="
-    !cargando() &&
-    licencias().length > 0
-  "
->
-  <article *ngFor="let licencia of licencias()">
-    <h2>Licencia {{ licencia.id }}</h2>
-    <p>Juego: {{ licencia.juegoId }}</p>
-    <p>Propietario: {{ licencia.usuarioSub }}</p>
+<main class="administracion-page">
+  <header class="administracion-header">
+    <p class="administracion-kicker">VidalStore</p>
+    <h1>Usuarios con licencias</h1>
     <p>
-      Creada:
-      {{ licencia.fechaCreacion | date:'medium' }}
+      Se muestran únicamente usuarios que tienen
+      licencias registradas en VidalStore.
     </p>
+  </header>
+
+  <p
+    *ngIf="mensaje()"
+    class="administracion-mensaje administracion-exito"
+    role="status"
+  >
+    {{ mensaje() }}
+  </p>
+
+  <div
+    *ngIf="error()"
+    class="administracion-mensaje administracion-error"
+    role="alert"
+  >
+    <p>{{ error() }}</p>
 
     <button
       type="button"
       [disabled]="licenciaRevocando() !== null"
-      (click)="revocar(licencia)"
+      (click)="cargarLicencias()"
     >
-      {{
-        licenciaRevocando() === licencia.id
-          ? 'Revocando...'
-          : 'Revocar'
-      }}
+      Reintentar carga
     </button>
-  </article>
-</section>
+  </div>
+
+  <p *ngIf="cargando()" class="administracion-estado">
+    Cargando licencias...
+  </p>
+
+  <p
+    *ngIf="
+      !cargando() &&
+      !error() &&
+      usuariosConLicencias().length === 0
+    "
+    class="administracion-estado"
+  >
+    No hay usuarios con licencias activas.
+  </p>
+
+  <section
+    *ngIf="
+      !cargando() &&
+      usuariosConLicencias().length > 0
+    "
+    class="usuarios-grid"
+  >
+    <article
+      *ngFor="let usuario of usuariosConLicencias()"
+      class="usuario-card"
+    >
+      <header>
+        <h2>{{ usuario.usuarioSub }}</h2>
+        <p>
+          {{ usuario.licencias.length }}
+          licencia(s) activa(s)
+        </p>
+      </header>
+
+      <div
+        *ngFor="let licencia of usuario.licencias"
+        class="licencia-card"
+      >
+        <p>
+          <strong>Juego:</strong>
+          {{ licencia.juegoId }}
+        </p>
+        <p>
+          <strong>Licencia:</strong>
+          {{ licencia.id }}
+        </p>
+        <p>
+          <strong>Creada:</strong>
+          {{ licencia.fechaCreacion | date:'medium' }}
+        </p>
+
+        <button
+          type="button"
+          [disabled]="licenciaRevocando() !== null"
+          (click)="revocar(licencia)"
+        >
+          {{
+            licenciaRevocando() === licencia.id
+              ? 'Revocando...'
+              : 'Revocar licencia'
+          }}
+        </button>
+      </div>
+    </article>
+  </section>
+</main>

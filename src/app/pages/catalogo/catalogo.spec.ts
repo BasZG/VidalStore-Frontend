@@ -13,11 +13,13 @@ import {
 
 describe('Catalogo', () => {
   let catalogoSubject: Subject<Juego[]>;
+  let bibliotecaSubject: Subject<Licencia[]>;
   let compraSubject: Subject<Licencia>;
   let serviceMock: {
     obtenerCatalogo: ReturnType<typeof vi.fn>;
   };
   let bibliotecaServiceMock: {
+    obtenerBiblioteca: ReturnType<typeof vi.fn>;
     comprarJuego: ReturnType<typeof vi.fn>;
   };
 
@@ -30,7 +32,11 @@ describe('Catalogo', () => {
   };
 
   beforeEach(async () => {
+    vi.restoreAllMocks();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+
     catalogoSubject = new Subject<Juego[]>();
+    bibliotecaSubject = new Subject<Licencia[]>();
     compraSubject = new Subject<Licencia>();
 
     serviceMock = {
@@ -40,6 +46,9 @@ describe('Catalogo', () => {
     };
 
     bibliotecaServiceMock = {
+      obtenerBiblioteca: vi.fn(() =>
+        bibliotecaSubject.asObservable(),
+      ),
       comprarJuego: vi.fn(() =>
         compraSubject.asObservable(),
       ),
@@ -100,7 +109,7 @@ describe('Catalogo', () => {
     );
 
     expect(compiled.textContent).toContain(
-      '12990',
+      '$12.990',
     );
   });
 
@@ -183,6 +192,7 @@ describe('Catalogo', () => {
 
     fixture.detectChanges();
     catalogoSubject.next([juegoPrueba]);
+    bibliotecaSubject.next([]);
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -206,6 +216,14 @@ describe('Catalogo', () => {
   it('debe mostrar compra exitosa', async () => {
     const fixture = TestBed.createComponent(Catalogo);
 
+    fixture.detectChanges();
+
+    catalogoSubject.next([juegoPrueba]);
+    bibliotecaSubject.next([]);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
     fixture.componentInstance.comprar(juegoPrueba);
 
     compraSubject.next({
@@ -221,6 +239,10 @@ describe('Catalogo', () => {
     expect(fixture.nativeElement.textContent).toContain(
       'Compraste Vidal Quest correctamente.',
     );
+
+    expect(
+      fixture.componentInstance.estaComprado('juego-123'),
+    ).toBe(true);
 
     expect(fixture.componentInstance.compraEnCurso())
       .toBeNull();
@@ -248,6 +270,14 @@ describe('Catalogo', () => {
     async (status, mensaje) => {
       const fixture = TestBed.createComponent(Catalogo);
 
+      fixture.detectChanges();
+
+      catalogoSubject.next([juegoPrueba]);
+      bibliotecaSubject.next([]);
+
+      await fixture.whenStable();
+      fixture.detectChanges();
+
       fixture.componentInstance.comprar(juegoPrueba);
       compraSubject.error({ status });
 
@@ -262,4 +292,43 @@ describe('Catalogo', () => {
         .toBeNull();
     },
   );
+  it('debe marcar como comprado cuando el backend responde LICENCIA_YA_EXISTE', async () => {
+    const fixture = TestBed.createComponent(Catalogo);
+
+    fixture.detectChanges();
+
+    catalogoSubject.next([juegoPrueba]);
+    bibliotecaSubject.next([]);
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    fixture.componentInstance.comprar(juegoPrueba);
+
+    compraSubject.error({
+      status: 409,
+      error: {
+        statusCode: 409,
+        message: 'LICENCIA_YA_EXISTE',
+      },
+    });
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(
+      fixture.componentInstance.estaComprado('juego-123'),
+    ).toBe(true);
+
+    expect(
+      fixture.componentInstance.mensajeCompra(),
+    ).toBe(
+      'Vidal Quest ya está en tu biblioteca.',
+    );
+
+    expect(
+      fixture.componentInstance.compraEnCurso(),
+    ).toBeNull();
+  });
+
 });

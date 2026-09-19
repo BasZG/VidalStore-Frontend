@@ -6,20 +6,35 @@ import {
   BibliotecaService,
   Licencia,
 } from './biblioteca.service';
+import {
+  CatalogoService,
+  Juego,
+} from '../catalogo/catalogo.service';
 
 describe('Biblioteca', () => {
   let bibliotecaSubject: Subject<Licencia[]>;
+  let catalogoSubject: Subject<Juego[]>;
 
   let bibliotecaServiceMock: {
     obtenerBiblioteca: ReturnType<typeof vi.fn>;
   };
+  let catalogoServiceMock: {
+    obtenerCatalogo: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(async () => {
     bibliotecaSubject = new Subject<Licencia[]>();
+    catalogoSubject = new Subject<Juego[]>();
 
     bibliotecaServiceMock = {
       obtenerBiblioteca: vi.fn(() =>
         bibliotecaSubject.asObservable(),
+      ),
+    };
+
+    catalogoServiceMock = {
+      obtenerCatalogo: vi.fn(() =>
+        catalogoSubject.asObservable(),
       ),
     };
 
@@ -29,6 +44,10 @@ describe('Biblioteca', () => {
         {
           provide: BibliotecaService,
           useValue: bibliotecaServiceMock,
+        },
+        {
+          provide: CatalogoService,
+          useValue: catalogoServiceMock,
         },
       ],
     }).compileComponents();

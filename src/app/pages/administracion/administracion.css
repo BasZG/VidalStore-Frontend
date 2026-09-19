@@ -1,19 +1,63 @@
 :host {
   display: block;
-  max-width: 56rem;
-  margin: 0 auto;
-  padding: 1.5rem;
 }
 
-section {
+.administracion-page {
+  width: min(100% - 2rem, var(--vs-max-width));
+  margin: 0 auto;
+  padding: 3rem 0;
+}
+
+.administracion-header {
+  margin-bottom: 2rem;
+}
+
+.administracion-header h1 {
+  margin: 0.25rem 0;
+  color: var(--vs-text);
+}
+
+.administracion-header p {
+  color: var(--vs-text-secondary);
+}
+
+.administracion-kicker {
+  color: var(--vs-primary) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.usuarios-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.usuario-card,
+.licencia-card,
+.administracion-mensaje,
+.administracion-estado {
+  border: 1px solid var(--vs-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.usuario-card {
   display: grid;
   gap: 1rem;
 }
 
-article {
-  padding: 1rem;
-  border: 1px solid #d7d7d7;
-  border-radius: 0.5rem;
+.licencia-card {
+  background: var(--vs-surface);
+}
+
+.administracion-error {
+  color: var(--vs-danger);
+  border-color: var(--vs-danger);
+}
+
+.administracion-exito {
+  color: #68d391;
+  border-color: #38a169;
 }
 
 button {
