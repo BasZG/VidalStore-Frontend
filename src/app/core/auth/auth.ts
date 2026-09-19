@@ -29,6 +29,46 @@ const GRUPOS_VALIDOS: GrupoUsuario[] = [
   'administradores',
 ];
 
+function obtenerGruposEfectivos(
+  gruposClaim: unknown,
+): GrupoUsuario[] {
+  // Claim ausente:
+  // un usuario autenticado recibe el rol mínimo jugadores.
+  if (gruposClaim === undefined) {
+    return ['jugadores'];
+  }
+
+  // Claim presente, pero con un tipo inválido.
+  if (!Array.isArray(gruposClaim)) {
+    return [];
+  }
+
+  // Array válido pero vacío:
+  // aplica también el rol mínimo jugadores.
+  if (gruposClaim.length === 0) {
+    return ['jugadores'];
+  }
+
+  // Si el array contiene valores que no son string,
+  // consideramos el claim malformado.
+  if (
+    gruposClaim.some(
+      (grupo) => typeof grupo !== 'string',
+    )
+  ) {
+    return [];
+  }
+
+  // Los grupos desconocidos se ignoran.
+  // Solo conservamos los grupos reconocidos por VidalStore.
+  return gruposClaim.filter(
+    (grupo): grupo is GrupoUsuario =>
+      GRUPOS_VALIDOS.includes(
+        grupo as GrupoUsuario,
+      ),
+  );
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -37,15 +77,25 @@ export class AuthService {
 
   private readonly usuarioSignal =
     signal<UsuarioSesion | null>(null);
+
   private readonly perfilSignal =
     signal<PerfilVisible | null>(null);
+
   private readonly gruposSignal =
     signal<GrupoUsuario[]>([]);
-  private readonly revisionSesionSignal = signal(0);
 
-  readonly usuario = this.usuarioSignal.asReadonly();
-  readonly perfil = this.perfilSignal.asReadonly();
-  readonly grupos = this.gruposSignal.asReadonly();
+  private readonly revisionSesionSignal =
+    signal(0);
+
+  readonly usuario =
+    this.usuarioSignal.asReadonly();
+
+  readonly perfil =
+    this.perfilSignal.asReadonly();
+
+  readonly grupos =
+    this.gruposSignal.asReadonly();
+
   readonly revisionSesion =
     this.revisionSesionSignal.asReadonly();
 
@@ -69,6 +119,7 @@ export class AuthService {
 
   async cerrarSesion() {
     this.invalidarSesion();
+
     await this.amplifyAuth.signOut();
   }
 
@@ -76,12 +127,16 @@ export class AuthService {
     this.revisionSesionSignal.update(
       (revision) => revision + 1,
     );
+
     this.usuarioSignal.set(null);
     this.perfilSignal.set(null);
     this.gruposSignal.set([]);
   }
 
-  registrarUsuario(email: string, password: string) {
+  registrarUsuario(
+    email: string,
+    password: string,
+  ) {
     return this.amplifyAuth.signUp({
       username: email,
       password,
@@ -93,7 +148,10 @@ export class AuthService {
     });
   }
 
-  confirmarRegistro(email: string, codigo: string) {
+  confirmarRegistro(
+    email: string,
+    codigo: string,
+  ) {
     return this.amplifyAuth.confirmSignUp({
       username: email,
       confirmationCode: codigo,
@@ -105,11 +163,14 @@ export class AuthService {
       this.revisionSesionSignal();
 
     try {
-      const [usuario, session] = await Promise.all([
-        this.amplifyAuth.getCurrentUser(),
-        this.amplifyAuth.fetchAuthSession(),
-      ]);
+      const [usuario, session] =
+        await Promise.all([
+          this.amplifyAuth.getCurrentUser(),
+          this.amplifyAuth.fetchAuthSession(),
+        ]);
 
+      // Evita que una respuesta antigua restaure
+      // una sesión que ya fue invalidada.
       if (
         revisionInicial !==
         this.revisionSesionSignal()
@@ -117,7 +178,8 @@ export class AuthService {
         return false;
       }
 
-      const accessToken = session.tokens?.accessToken;
+      const accessToken =
+        session.tokens?.accessToken;
 
       if (!accessToken) {
         this.invalidarSesion();
@@ -125,36 +187,37 @@ export class AuthService {
       }
 
       const gruposClaim =
-        accessToken.payload?.['cognito:groups'];
+        accessToken.payload?.[
+          'cognito:groups'
+        ];
 
-      const grupos = Array.isArray(gruposClaim)
-        ? gruposClaim.filter(
-            (grupo): grupo is GrupoUsuario =>
-              typeof grupo === 'string' &&
-              GRUPOS_VALIDOS.includes(
-                grupo as GrupoUsuario,
-              ),
-          )
-        : [];
+      const grupos =
+        obtenerGruposEfectivos(
+          gruposClaim,
+        );
 
       const idPayload =
         session.tokens?.idToken?.payload;
 
       const nombre =
-        typeof idPayload?.['name'] === 'string'
+        typeof idPayload?.['name'] ===
+        'string'
           ? idPayload['name']
           : null;
 
       const email =
-        typeof idPayload?.['email'] === 'string'
+        typeof idPayload?.['email'] ===
+        'string'
           ? idPayload['email']
           : null;
 
       this.usuarioSignal.set(usuario);
+
       this.perfilSignal.set({
         nombre,
         email,
       });
+
       this.gruposSignal.set(grupos);
 
       return true;
@@ -173,7 +236,8 @@ export class AuthService {
   async obtenerUsuarioActual(): Promise<
     UsuarioSesion | null
   > {
-    const sesionCargada = await this.cargarSesion();
+    const sesionCargada =
+      await this.cargarSesion();
 
     return sesionCargada
       ? this.usuarioSignal()
@@ -182,56 +246,70 @@ export class AuthService {
 
   async obtenerAtributosUsuario() {
     try {
-      return await this.amplifyAuth.fetchUserAttributes();
+      return await this.amplifyAuth
+        .fetchUserAttributes();
     } catch {
       return null;
     }
   }
 
-  async obtenerAccessToken(): Promise<string | null> {
-  const revisionInicial =
-    this.revisionSesionSignal();
+  async obtenerAccessToken(): Promise<
+    string | null
+  > {
+    const revisionInicial =
+      this.revisionSesionSignal();
 
-  try {
-    const session =
-      await this.amplifyAuth.fetchAuthSession();
+    try {
+      const session =
+        await this.amplifyAuth
+          .fetchAuthSession();
 
-    if (
-      revisionInicial !==
-      this.revisionSesionSignal()
-    ) {
+      // Evita utilizar un token obtenido
+      // por una sesión anterior.
+      if (
+        revisionInicial !==
+        this.revisionSesionSignal()
+      ) {
+        return null;
+      }
+
+      const token =
+        session.tokens?.accessToken
+          ?.toString() ?? null;
+
+      if (!token) {
+        this.invalidarSesion();
+      }
+
+      return token;
+    } catch {
+      if (
+        revisionInicial ===
+        this.revisionSesionSignal()
+      ) {
+        this.invalidarSesion();
+      }
+
       return null;
     }
-
-    const token =
-      session.tokens?.accessToken?.toString() ?? null;
-
-    if (!token) {
-      this.invalidarSesion();
-    }
-
-    return token;
-  } catch {
-    if (
-      revisionInicial ===
-      this.revisionSesionSignal()
-    ) {
-      this.invalidarSesion();
-    }
-
-    return null;
   }
-}
 
-  async cargarGrupos(): Promise<GrupoUsuario[]> {
-    const sesionCargada = await this.cargarSesion();
+  async cargarGrupos(): Promise<
+    GrupoUsuario[]
+  > {
+    const sesionCargada =
+      await this.cargarSesion();
 
     return sesionCargada
       ? this.gruposSignal()
       : [];
   }
 
-  tieneGrupo(grupo: GrupoUsuario): boolean {
-    return this.gruposSignal().includes(grupo);
+  tieneGrupo(
+    grupo: GrupoUsuario,
+  ): boolean {
+    return this.gruposSignal().includes(
+      grupo,
+    );
   }
 }
