@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675" role="img" aria-labelledby="title description">
+  <title id="title">Circuito futurista de Turbo Legends</title>
+  <desc id="description">Auto deportivo sobre una pista iluminada</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#075985"/>
+    </linearGradient>
+    <linearGradient id="car" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#a5f3fc"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#background)"/>
+  <path d="M0 510 1200 270V675H0Z" fill="#111827"/>
+  <path d="M80 590 1110 330" stroke="#22d3ee" stroke-width="14" stroke-dasharray="55 42" opacity=".65"/>
+  <path d="M360 420h430l105 96H290Z" fill="url(#car)"/>
+  <path d="M460 420 550 335h180l92 85Z" fill="#164e63" stroke="#67e8f9" stroke-width="9"/>
+  <circle cx="410" cy="520" r="58" fill="#020617" stroke="#67e8f9" stroke-width="12"/>
+  <circle cx="790" cy="520" r="58" fill="#020617" stroke="#67e8f9" stroke-width="12"/>
+  <text x="72" y="112" fill="#fff" font-family="sans-serif" font-size="54" font-weight="700">TURBO LEGENDS</text>
+</svg>
