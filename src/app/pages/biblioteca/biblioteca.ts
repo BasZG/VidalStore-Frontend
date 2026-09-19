@@ -13,9 +13,10 @@ import {
   BibliotecaService,
   Licencia,
 } from './biblioteca.service';
+import { GameCard } from '../../shared/components/game-card/game-card';
 
 @Component({
-  imports: [CommonModule],
+  imports: [CommonModule, GameCard],
   selector: 'app-biblioteca',
   styleUrl: './biblioteca.css',
   templateUrl: './biblioteca.html',

@@ -1,47 +1,82 @@
-<h1>Mi biblioteca</h1>
+<main class="biblioteca-page">
+  <header class="biblioteca-header">
+    <p class="biblioteca-kicker">Tu colección</p>
+    <h1>Mi biblioteca</h1>
+    <p>Los juegos asociados a tu cuenta.</p>
+  </header>
 
-<div *ngIf="cargando()">
-  Cargando biblioteca...
-</div>
+  <p *ngIf="cargando()" class="biblioteca-estado">
+    Cargando biblioteca...
+  </p>
 
-<div *ngIf="error()">
-  <p>{{ error() }}</p>
+  <section *ngIf="error()" class="biblioteca-mensaje biblioteca-error">
+    <p>{{ error() }}</p>
+    <button
+      type="button"
+      class="vs-btn"
+      (click)="cargarBiblioteca()"
+    >
+      Reintentar
+    </button>
+  </section>
 
-  <button
-    type="button"
-    (click)="cargarBiblioteca()"
+  <p
+    *ngIf="!cargando() && !error() && cargandoCatalogo() && licencias().length > 0"
+    class="biblioteca-estado"
   >
-    Reintentar
-  </button>
-</div>
+    Cargando detalles de los juegos...
+  </p>
 
-<div
-  *ngIf="
-    !cargando() &&
-    !error() &&
-    licencias().length === 0
-  "
->
-  Todavía no tienes juegos en tu biblioteca.
-</div>
+  <section
+    *ngIf="!error() && advertenciaCatalogo()"
+    class="biblioteca-mensaje biblioteca-advertencia"
+  >
+    <p>{{ advertenciaCatalogo() }}</p>
+    <button
+      type="button"
+      class="vs-btn"
+      (click)="cargarCatalogo()"
+    >
+      Reintentar detalles
+    </button>
+  </section>
 
-<div
-  *ngIf="
-    !cargando() &&
-    !error() &&
-    licencias().length > 0
-  "
->
-  <article *ngFor="let licencia of licencias()">
-    <h2>Juego {{ licencia.juegoId }}</h2>
+  <p
+    *ngIf="!cargando() && !error() && licencias().length === 0"
+    class="biblioteca-estado"
+  >
+    Todavía no tienes juegos en tu biblioteca.
+  </p>
 
-    <p>
-      Licencia: {{ licencia.id }}
-    </p>
+  <section
+    *ngIf="!cargando() && !error() && licencias().length > 0"
+    class="biblioteca-grid"
+    aria-label="Juegos de tu biblioteca"
+  >
+    <article
+      *ngFor="let item of bibliotecaEnriquecida()"
+      class="biblioteca-item"
+    >
+      <app-game-card
+        [titulo]="item.juego?.titulo ?? ('Juego ' + item.licencia.juegoId)"
+        [descripcion]="item.juego?.descripcion ?? 'La información de este juego no está disponible en el catálogo.'"
+        [imagen]="item.juego?.imagen ?? null"
+        [precio]="item.juego?.precio ?? null"
+        [genero]="item.juego?.genero ?? null"
+        [fechaPublicacion]="item.juego?.fechaPublicacion ?? null"
+        [etiqueta]="item.juego ? 'En tu biblioteca' : 'Sin datos de catálogo'"
+      />
 
-    <p>
-      Adquirido:
-      {{ licencia.fechaCreacion | date:'medium' }}
-    </p>
-  </article>
-</div>
+      <div class="biblioteca-licencia">
+        <p>
+          <strong>Licencia:</strong>
+          {{ item.licencia.id }}
+        </p>
+        <p>
+          <strong>Adquirido:</strong>
+          {{ item.licencia.fechaCreacion | date:'medium' }}
+        </p>
+      </div>
+    </article>
+  </section>
+</main>
