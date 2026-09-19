@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
@@ -9,6 +10,11 @@ import {
   AdministracionService,
   LicenciaAdministrativa,
 } from './administracion.service';
+
+interface UsuarioConLicencias {
+  usuarioSub: string;
+  licencias: LicenciaAdministrativa[];
+}
 
 @Component({
   imports: [CommonModule],
@@ -24,6 +30,33 @@ export class Administracion implements OnInit {
   readonly licencias = signal<LicenciaAdministrativa[]>(
     [],
   );
+  readonly usuariosConLicencias = computed<
+    UsuarioConLicencias[]
+  >(() => {
+    const grupos = new Map<
+      string,
+      LicenciaAdministrativa[]
+    >();
+
+    for (const licencia of this.licencias()) {
+      const licenciasUsuario =
+        grupos.get(licencia.usuarioSub) ?? [];
+
+      licenciasUsuario.push(licencia);
+      grupos.set(
+        licencia.usuarioSub,
+        licenciasUsuario,
+      );
+    }
+
+    return Array.from(
+      grupos,
+      ([usuarioSub, licencias]) => ({
+        usuarioSub,
+        licencias,
+      }),
+    );
+  });
   readonly cargando = signal(true);
   readonly licenciaRevocando = signal<string | null>(
     null,
@@ -60,6 +93,14 @@ export class Administracion implements OnInit {
   }
 
   revocar(licencia: LicenciaAdministrativa): void {
+    const confirmado = window.confirm(
+      `¿Quieres revocar la licencia del juego ${licencia.juegoId}?`,
+    );
+
+    if (!confirmado) {
+      return;
+    }
+
     this.licenciaRevocando.set(licencia.id);
     this.error.set(null);
     this.mensaje.set(null);
